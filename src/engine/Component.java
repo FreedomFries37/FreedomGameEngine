@@ -1,5 +1,7 @@
 package engine;
 
-public class Component {
+public interface Component {
+    
+    void initialize();
     
 }

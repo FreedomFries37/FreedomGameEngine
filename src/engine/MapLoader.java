@@ -7,7 +7,7 @@ import java.io.File;
 public class MapLoader {
     
     public static Map loadMapFromFile(File mapFile){
-        Map output = new Map();
+        Map output = null;
         
         
         return output;

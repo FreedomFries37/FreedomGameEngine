@@ -2,17 +2,16 @@ package engine.special_objects;
 
 import engine.Component;
 
-import javax.sound.midi.SysexMessage;
 import java.util.ArrayList;
 
-public class ObjectBehavior {
+public class GameObject {
     
-    private ArrayList<ObjectBehavior> children;
+    private ArrayList<GameObject> children;
     private ArrayList<Component> components;
     private String name;
     
     //CONSTRUCTOR
-    public ObjectBehavior(){
+    public GameObject(){
         children = new ArrayList<>();
         components = new ArrayList<>();
         name = "";
@@ -20,8 +19,17 @@ public class ObjectBehavior {
     
     
     //MUTATOR METHODS
-    public void addComponent(Component c){
-        components.add(c);
+    public Component addComponent(Class<? extends Component> type){
+        try{
+            Component c = type.newInstance();
+            components.add(c);
+            c.initialize();
+            return c;
+        }catch(InstantiationException | IllegalAccessException e){
+            e.printStackTrace();
+        }
+        
+        return null;
     }
     
     public boolean removeComponent(Component o){
@@ -30,17 +38,17 @@ public class ObjectBehavior {
         return true;
     }
     
-    public void addChild(ObjectBehavior o){
+    public void addChild(GameObject o){
         children.add(o);
     }
     
-    public boolean removeChild(ObjectBehavior o){
+    public boolean removeChild(GameObject o){
         if(!children.contains(o)) return false;
         children.remove(o);
         return true;
     }
     
-    public ArrayList<ObjectBehavior> getChildren() {
+    public ArrayList<GameObject> getChildren() {
         return children;
     }
     
@@ -58,7 +66,7 @@ public class ObjectBehavior {
     
     void updateSelfAndChildren(){
         update();
-        for(ObjectBehavior o : children){
+        for(GameObject o : children){
             o.updateSelfAndChildren();
         }
     }
