@@ -45,4 +45,9 @@ public class Map extends GameObject {
     public File getAssociatedFile() {
         return associatedFile;
     }
+    
+    @Override
+    public void initizalize() {
+    
+    }
 }

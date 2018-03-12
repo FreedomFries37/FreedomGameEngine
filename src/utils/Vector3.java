@@ -1,8 +1,10 @@
 package utils;
 
+import engine.Serializable;
+
 import java.math.*;
 
-public class Vector3 {
+public class Vector3 extends Serializable{
 
     public double x, y, z;
     

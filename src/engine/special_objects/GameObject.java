@@ -1,21 +1,27 @@
 package engine.special_objects;
 
+import engine.AssetFile;
 import engine.Component;
+import engine.Serializable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class GameObject {
+public class GameObject extends Serializable{
     
     private ArrayList<GameObject> children;
     private ArrayList<Component> components;
     private String name;
+    AssetFile assetFile;
     
     //CONSTRUCTOR
     public GameObject(){
         children = new ArrayList<>();
         components = new ArrayList<>();
         name = "";
+        assetFile = null;
     }
+    
     
     
     //MUTATOR METHODS
@@ -71,6 +77,10 @@ public class GameObject {
         }
     }
     
+    public void inheritFromAssetFile(AssetFile file){
+        assetFile = file;
+    }
+    
     
     
     
@@ -79,6 +89,8 @@ public class GameObject {
     
     public void start(){}
     
+    public void initizalize(){}
+    
     
     //OTHER METHODS
     
@@ -86,4 +98,48 @@ public class GameObject {
     public String toString() {
         return name;
     }
+    
+    public String toStringExtended(){
+        try{
+            return toStringExtended(0);
+        }catch(IllegalAccessException e){
+            e.printStackTrace();
+            return "";
+        }
+    }
+    public String toStringExtended(int indent) throws IllegalAccessException{
+        StringBuilder output = new StringBuilder();
+        
+        output.append(((Serializable) this).toStringExtended(indent));
+        
+       
+        for (int i = 0; i < indent; i++) output.append("\t");
+        output.append("children={\n");
+        for (Serializable c: getChildren()) {
+            ((GameObject) c).initizalize();
+            for (int i = 0; i < indent+1; i++) output.append("\t");
+            output.append(c.getClass().getName());
+            output.append("{\n");
+            output.append(c.toStringExtended(indent+2));
+            for (int i = 0; i < indent+1; i++) output.append("\t");
+            output.append("}\n");
+        }
+        for (int i = 0; i < indent; i++) output.append("\t");
+        output.append("}\n");
+        for (int i = 0; i < indent; i++) output.append("\t");
+        output.append("components={\n");
+        for (Serializable c: getComponents()) {
+            for (int i = 0; i < indent+1; i++) output.append("\t");
+            output.append(c.getClass().getName());
+            output.append("{\n");
+            output.append(c.toStringExtended(indent+2));
+            for (int i = 0; i < indent+1; i++) output.append("\t");
+            output.append("}\n");
+        }
+        for (int i = 0; i < indent; i++) output.append("\t");
+        output.append("}\n");
+        
+        return output.toString();
+    }
+    
 }

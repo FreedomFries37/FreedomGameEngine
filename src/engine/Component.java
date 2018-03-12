@@ -1,7 +1,7 @@
 package engine;
 
-public interface Component {
+public abstract class Component extends Serializable{
     
-    void initialize();
+    abstract public void initialize();
     
 }
