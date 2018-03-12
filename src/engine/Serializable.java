@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 public class Serializable {
     
+    boolean initialized = false;
+    
     public Field[] getParams(){
         System.out.println("Current Class: " + this.getClass());
         
@@ -31,31 +33,7 @@ public class Serializable {
         
         StringBuilder output = new StringBuilder();
         
-        /*
-        for(Field f : getParams()) {
-            for (int i = 0; i < indent; i++) output.append("\t");
-            String type = f.getType().getName();
-            String varName = f.getName();
-            String init = "[" + type + "]" + varName + "=";
-            output.append(init);
-            
-            Class varClass = f.getType();
-            
-            if(Serializable.class.isAssignableFrom(varClass)){ //Serializable
-                output.append("{\n");
-                Serializable object = (Serializable) f.get(this);
-                output.append(object.toStringExtended(indent+1));
-                for (int i = 0; i < indent; i++) output.append("\t");
-                output.append("}");
-            }else if(varClass.isPrimitive()){ //primative
-                output.append(f.get(this));
-            }else{
-                output.append("???");
-            }
-            
-            output.append("\n");
-        }
-        */
+       
         output.append(stringOfFields(indent));
        
         
@@ -89,6 +67,14 @@ public class Serializable {
         }
         
         return output.toString();
+    }
+    
+    public void setInitialized(){
+        initialized = true;
+    }
+    
+    public boolean initialzed(){
+        return initialized;
     }
     
     

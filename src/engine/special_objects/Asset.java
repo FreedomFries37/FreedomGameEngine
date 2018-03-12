@@ -18,6 +18,6 @@ public class Asset extends GameObject{
     
     @Override
     public void initizalize() {
-        initizalize();
+        super.initizalize();
     }
 }

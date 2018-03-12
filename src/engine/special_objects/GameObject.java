@@ -25,9 +25,9 @@ public class GameObject extends Serializable{
     
     
     //MUTATOR METHODS
-    public Component addComponent(Class<? extends Component> type){
+    public <T extends Component> T addComponent(Class<T> type){
         try{
-            Component c = type.newInstance();
+            T c = type.newInstance();
             components.add(c);
             c.initialize();
             return c;
@@ -48,6 +48,36 @@ public class GameObject extends Serializable{
         children.add(o);
     }
     
+    /*
+    public GameObject addChild(Class<? extends GameObject> type){
+        try{
+            GameObject g = type.newInstance();
+            g.initizalize();
+            g.setInitialized();
+            children.add(g);
+            return g;
+        }catch(InstantiationException | IllegalAccessException e){
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    */
+    
+    public <T extends GameObject> T addChild(Class<T> type){
+        try{
+            T g = type.newInstance();
+            g.initizalize();
+            g.setInitialized();
+            children.add(g);
+            return g;
+        }catch(InstantiationException | IllegalAccessException e){
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
     public boolean removeChild(GameObject o){
         if(!children.contains(o)) return false;
         children.remove(o);
@@ -60,6 +90,21 @@ public class GameObject extends Serializable{
     
     public ArrayList<Component> getComponents() {
         return components;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T extends Component> T getComponent(Class<T> type){
+        
+        for (Component c:
+                getComponents()) {
+            
+            
+            if(c.getClass() == type) return (T) c;
+            
+            //if(compT.getClass())) return (T) c;
+        }
+        
+        return null;
     }
     
     public String getName() {
@@ -109,14 +154,18 @@ public class GameObject extends Serializable{
     }
     public String toStringExtended(int indent) throws IllegalAccessException{
         StringBuilder output = new StringBuilder();
+        for (int i = 0; i < indent; i++) output.append("\t");
+        output.append("name=\"");
+        output.append(getName());
+        output.append("\"\n");
         
-        output.append(((Serializable) this).toStringExtended(indent));
+        output.append(stringOfFields(indent));
         
        
         for (int i = 0; i < indent; i++) output.append("\t");
         output.append("children={\n");
         for (Serializable c: getChildren()) {
-            ((GameObject) c).initizalize();
+            if(!c.initialzed()) ((GameObject) c).initizalize();
             for (int i = 0; i < indent+1; i++) output.append("\t");
             output.append(c.getClass().getName());
             output.append("{\n");

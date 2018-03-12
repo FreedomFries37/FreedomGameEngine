@@ -23,18 +23,6 @@ public class AssetWriter {
            
             writer = new FileWriter(file);
     
-            writer.write("name=\"" + f.getName() + "\"\n");
-            //writer.write("components={");
-            /*for (Component c: f.getComponents()) {
-                
-                String className = c.getClass().toString();
-                className = className.substring(className.indexOf(' ')+1);
-                writer.write(
-                        "\n[" + className + "]:" +
-                                componentStrings(c));
-            }
-            writer.write("\n}");
-            */
             String s = f.toStringExtended();
             writer.write(s);
     

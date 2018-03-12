@@ -5,6 +5,7 @@ import engine.special_objects.Asset;
 import engine.special_objects.GameObject;
 import engine.special_objects.Map;
 import engine.special_objects.Sphere;
+import utils.Vector3;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,16 @@ public class MapWriter {
         
         Map m = MapWriter.createNewMapFile("test");
         Asset a1 = new Asset("test object");
-        GameObject o1 = new Sphere();
+       
+        //a1.addComponent(Transform.class);
+        Sphere s1 = a1.addChild(Sphere.class);
+        Sphere s2 = s1.addChild(Sphere.class);
         a1.addComponent(Transform.class);
-        a1.addChild(o1);
+        Transform t1 = a1.getComponent(Transform.class);
+        t1.position = new Vector3(5,4,3);
+        s2.radius = 5;
+        s1.getComponent(Transform.class).position = new Vector3(14,2,4);
+        
         AssetWriter.updateAssetFile(a1);
     }
     
