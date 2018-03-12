@@ -1,0 +1,66 @@
+#UNIVERSAL TYPES
+
+$PATH = the path of the file
+$TYPE
+
+optional rule <string>:
+	<charbasic><stringEx>
+	
+rule <charbasic>:
+	[a-z,A-Z]
+	
+rule <stringEx>:
+	<charEx><stringtail>
+	
+optional rule <stringtail>:
+	<stringEx>
+
+rule <charEx>:
+	[a-z,A-Z,0-9]
+	
+optional rule <whitespace>:
+	\t<whitespace>
+	\n<whitespace>
+	 <whitespace>
+
+rule <type>:
+	<string><typetail>
+	
+optional rule <typetail>:
+	.<type>
+	 
+	 
+	 
+//For Game Objects
+
+rule <asset>:
+	[ASSET]$PATH
+
+rule <gameobject>:
+	<objectname><whitespace><fieldlist><whitespace>children={<whitespace><childrenlist><whitespace>}<whitespace>components={<whitespace><componentlist><whitespace>}
+
+rule <objectname>:
+	name="<string>"
+
+	
+#Fields
+optional rule <fieldlist>:
+	[<type>]<string>=<fieldlisttail>
+	
+rule <fieldlisttail>:
+	<value><whitespace><fieldlist>
+	{<fieldlist>}<whitespace><fieldlist>
+	
+#Children
+optional rule <childrenlist>:
+	<type>{<whitespace><gameobject><whitespace>}<whitespace><childrenlist>
+	
+#Components
+optional rule <componentlist>:
+	<component>{<whitespace><fieldlist><whitespace>}
+	
+rule <component>:
+	<string>
+
+	
+	
