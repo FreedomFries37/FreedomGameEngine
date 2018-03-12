@@ -40,6 +40,9 @@ public class MapWriter {
         s1.getComponent(Transform.class).position = new Vector3(14,2,4);
         
         AssetWriter.updateAssetFile(a1);
+        
+        AssetReader assetReader = new AssetReader(a1.getAssetFile());
+        AssetReader.ParseTree a2 = assetReader.ReadAssetFile();
     }
     
     

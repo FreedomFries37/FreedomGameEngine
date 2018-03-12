@@ -7,8 +7,9 @@ public class Asset extends GameObject{
 
     public Asset(String name){
         super();
-        setName(name);
-        AssetFile file = AssetFile.createAssetFile(name);
+        String newName = name.replace(' ', '_');
+        setName(newName);
+        AssetFile file = AssetFile.createAssetFile(newName);
         inheritFromAssetFile(file);
     }
     

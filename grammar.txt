@@ -24,7 +24,10 @@ optional rule <whitespace>:
 	 <whitespace>
 
 rule <type>:
-	<string>
+	<string><typetail>
+	
+optional rule <typetail>:
+	.<type>
 	 
 	 
 	 
@@ -34,9 +37,10 @@ rule <asset>:
 	[ASSET]$PATH
 
 rule <gameobject>:
-	name="<string>"<whitespace><fieldlist><whitespace>children={<whitespace><childrenlist><whitespace>}<whitespace>components={<whitespace><componentlist><whitespace>}
+	<objectname><whitespace><fieldlist><whitespace>children={<whitespace><childrenlist><whitespace>}<whitespace>components={<whitespace><componentlist><whitespace>}
 
-
+rule <objectname>:
+	name="<string>"
 
 	
 #Fields
@@ -49,7 +53,7 @@ rule <fieldlisttail>:
 	
 #Children
 optional rule <childrenlist>:
-	<gameobject><childrenlist>
+	<type>{<whitespace><gameobject><whitespace>}<whitespace><childrenlist>
 	
 #Components
 optional rule <componentlist>:
