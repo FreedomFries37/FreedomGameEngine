@@ -1,29 +1,37 @@
 package engine;
 
 import engine.special_objects.GameObject;
+import tools.AssetTreeConverter;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class Serializable {
+public abstract class Serializable {
     
-    
+    public Serializable(){}
     
     boolean initialized = false;
     
-    public Field[] getParams(){
+    public Field[] getParams() {
         System.out.println("Current Class: " + this.getClass());
-        
+    
         LinkedList<Field> fields = new LinkedList<>(
                 Arrays.asList(this.getClass().getFields()));
     
         
-        for (int i = fields.size()-1; i >= 0; i--) {
-            if(!getClass().isAssignableFrom(fields.get(i).getDeclaringClass()) &&
-                    !fields.get(i).getDeclaringClass().isPrimitive()) fields.remove(i);
-            
+        for (int i = fields.size() - 1; i >= 0; i--) {
+            if (!Serializable.class.isAssignableFrom(fields.get(i).getDeclaringClass())) {
+                boolean isPrimitive = fields.get(i).getDeclaringClass().isPrimitive();
+                if (!isPrimitive) fields.remove(i);
+            } else if (fields.get(i).getName().equals("gameObject")) {
+                fields.remove(i);
+            }
         }
+    
+        
+    
+       
         
         
         return fields.toArray(new Field[fields.size()]);
@@ -42,21 +50,61 @@ public class Serializable {
         return output.toString();
     }
     
+    public static String convertPrimitiveToClass(Class<?> varClass){
+        String initial = "java.lang.";
+        String modifiedType = "";
+        switch(varClass.getName()){
+            case "int":
+                modifiedType = "Integer";
+                break;
+            case "double":
+                modifiedType = "Double";
+                break;
+            case "char":
+                modifiedType = "Character";
+                break;
+            case "long":
+                modifiedType = "Long";
+                break;
+            case "float":
+                modifiedType = "Float";
+                break;
+            case "boolean":
+                modifiedType = "Boolean";
+                break;
+        }
+        return initial + modifiedType;
+    }
+    
     public String stringOfFields(int indent) throws IllegalAccessException{
         StringBuilder output = new StringBuilder();
         for(Field f : getParams()) {
             for (int i = 0; i < indent; i++) output.append("\t");
-            String type = f.getType().getName();
+    
+            Class varClass = f.getType();
+            String type;
+            if(varClass.isPrimitive()){
+                type = convertPrimitiveToClass(varClass);
+            }else{
+                type = varClass.getName();
+            }
+            
+            
+            
+            
+            
             String varName = f.getName();
             String init = "[" + type + "]" + varName + "=";
             output.append(init);
         
-            Class varClass = f.getType();
+            
         
             if(Serializable.class.isAssignableFrom(varClass)){ //Serializable
                 output.append("{\n");
                 Serializable object = (Serializable) f.get(this);
-                output.append(object.toStringExtended(indent+1));
+                if(object == null) object = AssetTreeConverter.spoofConstructor(varClass);
+                if(object == null) output.append("???");
+                else output.append(object.toStringExtended(indent+1));
                 for (int i = 0; i < indent; i++) output.append("\t");
                 output.append("}");
             }else if(varClass.isPrimitive()){ //primative

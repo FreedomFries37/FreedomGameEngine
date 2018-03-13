@@ -1,9 +1,10 @@
 package tools;
 
 import engine.special_components.Transform;
-import engine.special_objects.Asset;
-import engine.special_objects.Map;
-import engine.special_objects.Sphere;
+import engine.special_objects.*;
+import utils.Line;
+import utils.Plane;
+import utils.Vector2;
 import utils.Vector3;
 
 import java.io.File;
@@ -34,19 +35,29 @@ public class MapWriter {
         Sphere s1 = a1.addChild(Sphere.class);
         s1.getComponent(Transform.class).position = new Vector3(3,2,2);
         s1.setName("MEGASPHERE");
-        Sphere s2 = s1.addChild(Sphere.class);
+        s1.postition2 = new Vector3(3,2,2);
+        Sphere s2 = a1.addChild(Sphere.class);
         s2.radius = 10;
         s2.setName("smallsphere");
         s1.radius = 15;
         
+        
+        ScenePlane p1 = a1.addChild(ScenePlane.class);
+        p1.plane = new Plane(new Line(new Vector2(0,1), new Vector2(1,0)),new Vector2(0,0));
+        p1.setName("The_Plane");
+        
         AssetWriter.updateAssetFile(a1);
         
         AssetParseTreeGenerator assetParseTreeGenerator = new AssetParseTreeGenerator(a1.getAssetFile());
-        AssetParseTreeGenerator.ParseTree a2 = assetParseTreeGenerator.ReadAssetFile();
+        ParseTree a2 = assetParseTreeGenerator.ReadAssetFile();
         a2.printParseTree();
     
         AssetTreeConverter assetTreeConverter = new AssetTreeConverter();
-        assetTreeConverter.testTreeConverter();
+        GameObject testObject = assetTreeConverter.createGameObjectFromAssetTree(a2);
+        System.out.println(testObject.getName());
+        
+        
+        //assetTreeConverter.testAssetTreeConverter();
     }
     
     

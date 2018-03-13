@@ -38,6 +38,7 @@ public class GameObject extends StandardBehavior{
             T c = type.newInstance();
             components.add(c);
             c.setParent(this);
+            c.setGameObject();
             c.initialize();
             return c;
         }catch(InstantiationException | IllegalAccessException e){
@@ -45,6 +46,16 @@ public class GameObject extends StandardBehavior{
         }
         
         return null;
+    }
+    
+    public boolean addComponent(Component o){
+        for(Component c : components){
+            if(c.getClass() == o.getClass()) return false;
+        }
+        components.add(o);
+        o.setParent(this);
+        o.gameObject = this;
+        return true;
     }
     
     public boolean removeComponent(Component o){
@@ -76,8 +87,8 @@ public class GameObject extends StandardBehavior{
     public <T extends GameObject> T addChild(Class<T> type){
         try{
             T g = type.newInstance();
-            g.initizalize();
-            g.setInitialized();
+            //g.initizalize();
+            //g.setInitialized();
             children.add(g);
             return g;
         }catch(InstantiationException | IllegalAccessException e){
@@ -170,13 +181,19 @@ public class GameObject extends StandardBehavior{
         for (int i = 0; i < indent; i++) output.append("\t");
         output.append("children={\n");
         for (Serializable c: getChildren()) {
-            if(!c.initialzed()) ((GameObject) c).initizalize();
+            //if(!c.initialzed()) ((GameObject) c).initizalize();
             for (int i = 0; i < indent+1; i++) output.append("\t");
             output.append(c.getClass().getName());
-            output.append("{\n");
-            output.append(c.toStringExtended(indent+2));
-            for (int i = 0; i < indent+1; i++) output.append("\t");
-            output.append("}\n");
+            if(((GameObject) c).assetFile != null){
+                output.append("[A]\"");
+                output.append(((Asset) c).assetFile);
+                output.append("\"\n");
+            }else {
+                output.append("{\n");
+                output.append(c.toStringExtended(indent + 2));
+                for (int i = 0; i < indent + 1; i++) output.append("\t");
+                output.append("}\n");
+            }
         }
         for (int i = 0; i < indent; i++) output.append("\t");
         output.append("}\n");

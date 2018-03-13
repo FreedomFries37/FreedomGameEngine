@@ -2,36 +2,75 @@ name="test_object"
 children={
 	engine.special_objects.Sphere{
 		name="MEGASPHERE"
-		[double]radius=(15.0)
-		[char]letter=(a)
-		[boolean]condition=(true)
-		[java.lang.String]gamma="Sphere0"
+		[java.lang.Double]radius=(15.0)
+		[java.lang.String]gamma="null"
+		[utils.Vector3]postition2={
+			[java.lang.Double]x=(3.0)
+			[java.lang.Double]y=(2.0)
+			[java.lang.Double]z=(2.0)
+		}
 		children={
-			engine.special_objects.Sphere{
-				name="smallsphere"
-				[double]radius=(10.0)
-				[char]letter=(a)
-				[boolean]condition=(true)
-				[java.lang.String]gamma="Sphere1"
-				children={
-				}
-				components={
-					engine.special_components.Transform{
-						[utils.Vector3]position={
-							[double]x=(0.0)
-							[double]y=(0.0)
-							[double]z=(0.0)
-						}
-					}
-				}
-			}
 		}
 		components={
 			engine.special_components.Transform{
 				[utils.Vector3]position={
-					[double]x=(3.0)
-					[double]y=(2.0)
-					[double]z=(2.0)
+					[java.lang.Double]x=(3.0)
+					[java.lang.Double]y=(2.0)
+					[java.lang.Double]z=(2.0)
+				}
+			}
+		}
+	}
+	engine.special_objects.Sphere{
+		name="smallsphere"
+		[java.lang.Double]radius=(10.0)
+		[java.lang.String]gamma="null"
+		[utils.Vector3]postition2={
+			[java.lang.Double]x=(0.0)
+			[java.lang.Double]y=(0.0)
+			[java.lang.Double]z=(0.0)
+		}
+		children={
+		}
+		components={
+			engine.special_components.Transform{
+				[utils.Vector3]position={
+					[java.lang.Double]x=(0.0)
+					[java.lang.Double]y=(0.0)
+					[java.lang.Double]z=(0.0)
+				}
+			}
+		}
+	}
+	engine.special_objects.ScenePlane{
+		name="The_Plane"
+		[utils.Plane]plane={
+			[utils.Line]line={
+				[utils.Vector3]u={
+					[java.lang.Double]x=(0.0)
+					[java.lang.Double]y=(1.0)
+					[java.lang.Double]z=(0.0)
+				}
+				[utils.Vector3]v={
+					[java.lang.Double]x=(1.0)
+					[java.lang.Double]y=(0.0)
+					[java.lang.Double]z=(0.0)
+				}
+			}
+			[utils.Vector3]point={
+				[java.lang.Double]x=(0.0)
+				[java.lang.Double]y=(0.0)
+				[java.lang.Double]z=(0.0)
+			}
+		}
+		children={
+		}
+		components={
+			engine.special_components.Transform{
+				[utils.Vector3]position={
+					[java.lang.Double]x=(0.0)
+					[java.lang.Double]y=(0.0)
+					[java.lang.Double]z=(0.0)
 				}
 			}
 		}
@@ -40,9 +79,9 @@ children={
 components={
 	engine.special_components.Transform{
 		[utils.Vector3]position={
-			[double]x=(3.0)
-			[double]y=(4.0)
-			[double]z=(5.0)
+			[java.lang.Double]x=(3.0)
+			[java.lang.Double]y=(4.0)
+			[java.lang.Double]z=(5.0)
 		}
 	}
 }

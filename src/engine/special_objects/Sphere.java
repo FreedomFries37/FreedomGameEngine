@@ -1,13 +1,13 @@
 package engine.special_objects;
 
 import engine.special_components.Transform;
+import utils.Vector3;
 
 public class Sphere extends GameObject{
     
     public double radius;
-    public char letter = 'a';
-    public boolean condition = true;
-    public String gamma = "$yolo";
+    public String gamma;
+    public Vector3 postition2;
     
     private static int spheresCreated = 0;
     

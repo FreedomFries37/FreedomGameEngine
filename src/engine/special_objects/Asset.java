@@ -13,6 +13,7 @@ public class Asset extends GameObject{
         inheritFromAssetFile(file);
     }
     
+    
     public AssetFile getAssetFile(){
         return assetFile;
     }

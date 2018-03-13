@@ -55,6 +55,7 @@ rule <fieldlisttail>:
 #Children
 optional rule <childrenlist>:
 	<type>{<whitespace><gameobject><whitespace>}<whitespace><childrenlist>
+	[A]"<stringEx>"<whitespace><childrenlist>
 	
 #Components
 optional rule <componentlist>:

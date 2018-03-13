@@ -13,41 +13,11 @@ public class AssetParseTreeGenerator {
     private int index;
     private String fileAsString;
     
-    public class ParseNodeNonBinary{
-        String data;
-        LinkedList<ParseNodeNonBinary> children;
-        ParseNodeNonBinary(String data){
-            this.data = data;
-            children = new LinkedList<>();
-        }
-        public String toString(){ return data;}
-    }
     
     
     
-    public class ParseTree{
     
-        ParseNodeNonBinary head;
-        
-        public ParseTree(ParseNodeNonBinary head){
-            this.head = head;
-        }
-        
-        
-        public void printParseTree(){
-            printParseTree(head,0);
-        }
-        private void printParseTree(ParseNodeNonBinary root, int indent){
-            for (int i = 0; i < indent; i++) {
-                System.out.print("\t");
-            }
-            System.out.println(root.data);
-            
-            for(ParseNodeNonBinary p : root.children){
-                printParseTree(p, indent+1);
-            }
-        }
-    }
+    
     
     public AssetParseTreeGenerator(AssetFile assetFile){
         try {
@@ -146,7 +116,7 @@ public class AssetParseTreeGenerator {
     }
     
     private boolean checkStringFull(ParseNodeNonBinary parent){
-        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<string>");
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<stringEx>");
     
         StringBuilder builder = new StringBuilder();
         int charValue = (int) currentPointer;
@@ -217,8 +187,9 @@ public class AssetParseTreeGenerator {
         ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<objectname>");
         if(!consumeString("name=\"")) return false;
         //nextNode.children.add(new ParseNodeNonBinary("name"));
-        if(!checkString(nextNode)) return false;
-        if(!consumeString("\"")) return false;
+        if(!checkStringFull(nextNode)) return false;
+        //if(!consumeString("\"")) return false;
+        if(!consumeChar('"')) return false;
     
         parent.children.add(nextNode);
         return true;
@@ -300,14 +271,22 @@ public class AssetParseTreeGenerator {
     private boolean checkChildrenList(ParseNodeNonBinary parent){
         ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<childrenlist>");
         if(!matchChar('}')){
-            if(!checkType(nextNode)) return false;
-            if(!consumeChar('{')) return false;
+            if(matchString("[A]")) {
+                consumeString("[A]");
+                ParseNodeNonBinary nextNextNode = new ParseNodeNonBinary("<assetlocation>");
+                if(!checkStringFull(nextNextNode)) return false;
+                nextNode.children.add(nextNextNode);
+            }else {
+                if (!checkType(nextNode)) return false;
+                if (!consumeChar('{')) return false;
+                consumeWhiteSpace();
+                if (!checkGameObject(nextNode)) return false;
+                consumeWhiteSpace();
+                if (!consumeChar('}')) return false;
+               
+            }
             consumeWhiteSpace();
-            if(!checkGameObject(nextNode)) return false;
-            consumeWhiteSpace();
-            if(!consumeChar('}')) return false;
-            consumeWhiteSpace();
-            if(!checkChildrenList(nextNode)) return false;
+            if (!checkChildrenList(nextNode)) return false;
         }
         
         
