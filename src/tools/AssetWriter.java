@@ -1,14 +1,10 @@
 package tools;
 
-import engine.Component;
-import engine.Serializable;
-import engine.special_objects.Asset;
 import engine.AssetFile;
+import engine.special_objects.Asset;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 public class AssetWriter {
     
@@ -34,25 +30,5 @@ public class AssetWriter {
         
     }
     
-    private static String componentStrings(Component object){
-        String output = "";
-        
-        
-        Field fields[] = object.getParams();
-        int count = 0;
-        for(Field f : fields){
-            try{
-                String part = f.getName() + "=" + f.get(object);
-                if(count < fields.length-1) part += ",";
-                count++;
-                output += part;
-            }catch(IllegalAccessException e){
-                e.printStackTrace(); //should never happen
-            }
-           
-        }
-        
-        return output;
-    }
     
 }

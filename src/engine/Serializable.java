@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 public class Serializable {
     
+    
+    
     boolean initialized = false;
     
     public Field[] getParams(){
@@ -58,7 +60,13 @@ public class Serializable {
                 for (int i = 0; i < indent; i++) output.append("\t");
                 output.append("}");
             }else if(varClass.isPrimitive()){ //primative
+                output.append('(');
                 output.append(f.get(this));
+                output.append(')');
+            }else if(varClass.equals(String.class)){
+                output.append('"');
+                output.append(f.get(this));
+                output.append('"');
             }else{
                 output.append("???");
             }

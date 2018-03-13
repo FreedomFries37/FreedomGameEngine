@@ -48,8 +48,9 @@ optional rule <fieldlist>:
 	[<type>]<string>=<fieldlisttail>
 	
 rule <fieldlisttail>:
-	<value><whitespace><fieldlist>
+	(<value>)<whitespace><fieldlist>
 	{<fieldlist>}<whitespace><fieldlist>
+	"<stringEx>"<whitespace><fieldlist>
 	
 #Children
 optional rule <childrenlist>:
@@ -57,10 +58,10 @@ optional rule <childrenlist>:
 	
 #Components
 optional rule <componentlist>:
-	<component>{<whitespace><fieldlist><whitespace>}
+	<component><whitespace><childrenlist>
 	
 rule <component>:
-	<string>
+	<type>{<whitespace><fieldlist><whitespace>}
 
 	
 	

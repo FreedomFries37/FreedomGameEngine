@@ -3,32 +3,41 @@ package engine.special_objects;
 import engine.AssetFile;
 import engine.Component;
 import engine.Serializable;
+import engine.StandardBehavior;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class GameObject extends Serializable{
+public class GameObject extends StandardBehavior{
     
     private ArrayList<GameObject> children;
     private ArrayList<Component> components;
     private String name;
     AssetFile assetFile;
     
+    
     //CONSTRUCTOR
     public GameObject(){
+        //super();
         children = new ArrayList<>();
         components = new ArrayList<>();
         name = "";
         assetFile = null;
+        setGameObject();
     }
     
     
     
     //MUTATOR METHODS
+    @SuppressWarnings("unchecked")
     public <T extends Component> T addComponent(Class<T> type){
+        for(Component c : components){
+            if(c.getClass().getDeclaringClass().equals(type.getClass())) return (T) c;
+        }
         try{
             T c = type.newInstance();
             components.add(c);
+            c.setParent(this);
             c.initialize();
             return c;
         }catch(InstantiationException | IllegalAccessException e){
@@ -130,11 +139,7 @@ public class GameObject extends Serializable{
     
     
     //ENGINE METHODS
-    public void update(){}
-    
-    public void start(){}
-    
-    public void initizalize(){}
+  
     
     
     //OTHER METHODS

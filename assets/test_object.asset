@@ -1,20 +1,26 @@
 name="test_object"
 children={
 	engine.special_objects.Sphere{
-		name="Sphere"
-		[double]radius=0.0
+		name="MEGASPHERE"
+		[double]radius=(15.0)
+		[char]letter=(a)
+		[boolean]condition=(true)
+		[java.lang.String]gamma="Sphere0"
 		children={
 			engine.special_objects.Sphere{
-				name="Sphere"
-				[double]radius=5.0
+				name="smallsphere"
+				[double]radius=(10.0)
+				[char]letter=(a)
+				[boolean]condition=(true)
+				[java.lang.String]gamma="Sphere1"
 				children={
 				}
 				components={
 					engine.special_components.Transform{
 						[utils.Vector3]position={
-							[double]x=0.0
-							[double]y=0.0
-							[double]z=0.0
+							[double]x=(0.0)
+							[double]y=(0.0)
+							[double]z=(0.0)
 						}
 					}
 				}
@@ -23,9 +29,9 @@ children={
 		components={
 			engine.special_components.Transform{
 				[utils.Vector3]position={
-					[double]x=14.0
-					[double]y=2.0
-					[double]z=4.0
+					[double]x=(3.0)
+					[double]y=(2.0)
+					[double]z=(2.0)
 				}
 			}
 		}
@@ -34,9 +40,9 @@ children={
 components={
 	engine.special_components.Transform{
 		[utils.Vector3]position={
-			[double]x=5.0
-			[double]y=4.0
-			[double]z=3.0
+			[double]x=(3.0)
+			[double]y=(4.0)
+			[double]z=(5.0)
 		}
 	}
 }

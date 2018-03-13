@@ -6,14 +6,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
-public class AssetReader{
+public class AssetParseTreeGenerator {
     
     //Use Recrusive Parser
     private char currentPointer;
     private int index;
     private String fileAsString;
     
-    private class ParseNodeNonBinary{
+    public class ParseNodeNonBinary{
         String data;
         LinkedList<ParseNodeNonBinary> children;
         ParseNodeNonBinary(String data){
@@ -23,16 +23,33 @@ public class AssetReader{
         public String toString(){ return data;}
     }
     
-    public class ParseNode{
-        private String data;
-        
-    }
+    
     
     public class ParseTree{
     
+        ParseNodeNonBinary head;
+        
+        public ParseTree(ParseNodeNonBinary head){
+            this.head = head;
+        }
+        
+        
+        public void printParseTree(){
+            printParseTree(head,0);
+        }
+        private void printParseTree(ParseNodeNonBinary root, int indent){
+            for (int i = 0; i < indent; i++) {
+                System.out.print("\t");
+            }
+            System.out.println(root.data);
+            
+            for(ParseNodeNonBinary p : root.children){
+                printParseTree(p, indent+1);
+            }
+        }
     }
     
-    public AssetReader(AssetFile assetFile){
+    public AssetParseTreeGenerator(AssetFile assetFile){
         try {
             FileReader reader = new FileReader(assetFile);
             StringBuilder temp = new StringBuilder();
@@ -47,15 +64,18 @@ public class AssetReader{
         }
     }
     
+    
+    
     public ParseTree ReadAssetFile(){
         ParseNodeNonBinary nonBinaryTree = new ParseNodeNonBinary("<asset>");
         
         if(!checkGameObject(nonBinaryTree)) return null;
+        ParseTree output = new ParseTree(nonBinaryTree);
         
-        return null;
+        return output;
     }
     
-    public void continuePointer(){
+    private void continuePointer(){
         index++;
         if(index < fileAsString.length()) currentPointer = fileAsString.toCharArray()[index];
     }
@@ -65,7 +85,7 @@ public class AssetReader{
      * @param c the char to check against the current char pointer
      * @return if they are equal
      */
-    public boolean matchChar(char c){
+    private boolean matchChar(char c){
         return c == currentPointer;
     }
     
@@ -74,7 +94,7 @@ public class AssetReader{
      * @param c the char to check against the current char pointer
      * @return if they are equal
      */
-    public boolean consumeChar(char c){
+    private boolean consumeChar(char c){
         if(matchChar(c)){
             continuePointer();
             return true;
@@ -82,7 +102,7 @@ public class AssetReader{
         return false;
     }
     
-    public boolean matchString(String s){
+    private boolean matchString(String s){
         int tempIndex = index;
         for(char c : s.toCharArray()){
             if(c!=fileAsString.toCharArray()[tempIndex]) return false;
@@ -92,7 +112,7 @@ public class AssetReader{
         return true;
     }
     
-    public boolean consumeString(String s){
+    private boolean consumeString(String s){
         if(matchString(s)){
             for (int i = 0; i < s.length(); i++) {
                 continuePointer();
@@ -125,7 +145,28 @@ public class AssetReader{
         return true;
     }
     
+    private boolean checkStringFull(ParseNodeNonBinary parent){
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<string>");
     
+        StringBuilder builder = new StringBuilder();
+        int charValue = (int) currentPointer;
+        boolean firstChecked = false;
+    
+        while(charValue != '"'){
+            builder.append(currentPointer);
+            continuePointer();
+            charValue = (int) currentPointer;
+            if(!firstChecked) firstChecked = true;
+        }
+    
+        nextNode.children.add(new ParseNodeNonBinary(builder.toString()));
+    
+        parent.children.add(nextNode);
+        return true;
+    
+    
+        
+    }
     
     
     
@@ -154,11 +195,19 @@ public class AssetReader{
         consumeWhiteSpace();
         if(!checkFieldList(nextNode)) return false;
         consumeWhiteSpace();
+        
         if(!consumeString("children={")) return false;
         consumeWhiteSpace();
         if(!checkChildrenList(nextNode)) return false;
+        consumeWhiteSpace();
         if(!consumeChar('}')) return false;
+        consumeWhiteSpace();
         
+        if(!consumeString("components={")) return false;
+        consumeWhiteSpace();
+        if(!checkComponentList(nextNode)) return false;
+        consumeWhiteSpace();
+        if(!consumeChar('}')) return false;
         
         parent.children.add(nextNode);
         return true;
@@ -167,7 +216,7 @@ public class AssetReader{
     private boolean checkObjectName(ParseNodeNonBinary parent){
         ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<objectname>");
         if(!consumeString("name=\"")) return false;
-        nextNode.children.add(new ParseNodeNonBinary("name"));
+        //nextNode.children.add(new ParseNodeNonBinary("name"));
         if(!checkString(nextNode)) return false;
         if(!consumeString("\"")) return false;
     
@@ -195,10 +244,15 @@ public class AssetReader{
         ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<fieldlisttail>");
     
         if(consumeChar('{')){
+            consumeWhiteSpace();
             if(!checkFieldList(nextNode)) return false;
             if(!consumeChar('}')) return false;
-        }else{
+        }else if(consumeChar('(')){
             if(!checkValue(nextNode)) return false;
+            if(!consumeChar(')')) return false;
+        }else if(consumeChar('"')){
+            if(!checkStringFull(nextNode)) return false;
+            if(!consumeChar('"')) return false;
         }
         consumeWhiteSpace();
         if(matchChar('[')) {
@@ -230,7 +284,15 @@ public class AssetReader{
     
     private boolean checkValue(ParseNodeNonBinary parent){
         ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<value>");
-        if(!checkString(nextNode)) return false;
+        //if(!checkString(nextNode)) return false;
+        
+        StringBuilder builder = new StringBuilder();
+        while(!matchChar(')')){
+            builder.append(currentPointer);
+            continuePointer();
+        }
+        nextNode.children.add(new ParseNodeNonBinary(builder.toString()));
+        
         parent.children.add(nextNode);
         return true;
     }
@@ -253,5 +315,39 @@ public class AssetReader{
         parent.children.add(nextNode);
         return true;
     }
+    
+    private boolean checkComponentList(ParseNodeNonBinary parent){
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<componentlist>");
+        if(!matchChar('}')){
+            if(!checkComponent(nextNode)) return false;
+            consumeWhiteSpace();
+            if(!matchChar('}')){
+                if(!checkComponentList(nextNode)) return false;
+            }
+        }
+        
+        
+        parent.children.add(nextNode);
+        return true;
+    }
+    
+    private boolean checkComponent(ParseNodeNonBinary parent){
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<component>");
+    
+        if(!checkType(nextNode)) return false;
+        if(!consumeChar('{')) return false;
+        consumeWhiteSpace();
+    
+        if(!checkFieldList(nextNode)) return false;
+        consumeWhiteSpace();
+        if(!consumeChar('}')) return false;
+        
+        parent.children.add(nextNode);
+        return true;
+    }
+    
+    
+    
+    
     
 }
