@@ -19,6 +19,7 @@ public class AssetWriter {
            
             writer = new FileWriter(file);
     
+            
             String s = f.toStringExtended();
             writer.write(s);
     

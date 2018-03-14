@@ -49,8 +49,10 @@ public class AssetTreeConverter {
     }
     
     public GameObject createGameObjectFromAssetTree(ParseTree tree){
-        if(!tree.head.data.equals("<asset>")) return null;
-        return parseGameObject(tree.head.children.get(0), "engine.special_objects.Void");
+        if(!tree.head.data.equals("<assetfile>")) return null;
+        String type = parseType(tree.head.children.get(0));
+        ParseNodeNonBinary gameObject = tree.head.children.get(1);
+        return parseGameObject(gameObject, type);
     }
     
     public ValueOrHashMap createPrimitiveValueOrList(String type, String input){

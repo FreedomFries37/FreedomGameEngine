@@ -175,7 +175,7 @@ public class GameObject extends StandardBehavior{
         output.append(getName());
         output.append("\"\n");
         
-        output.append(stringOfFields(indent));
+        output.append(gameObject.stringOfFields(indent));
         
        
         for (int i = 0; i < indent; i++) output.append("\t");

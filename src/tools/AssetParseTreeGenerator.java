@@ -37,12 +37,10 @@ public class AssetParseTreeGenerator {
     
     
     public ParseTree ReadAssetFile(){
-        ParseNodeNonBinary nonBinaryTree = new ParseNodeNonBinary("<asset>");
+        ParseNodeNonBinary nonBinaryTree = checkAssetFile();
+        if(nonBinaryTree == null) return null;
         
-        if(!checkGameObject(nonBinaryTree)) return null;
-        ParseTree output = new ParseTree(nonBinaryTree);
-        
-        return output;
+        return new ParseTree(nonBinaryTree);
     }
     
     private void continuePointer(){
@@ -93,7 +91,14 @@ public class AssetParseTreeGenerator {
         return false;
     }
     
-    
+    public ParseNodeNonBinary checkAssetFile(){
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<assetfile>");
+        if(!checkType(nextNode)) return null;
+        consumeWhiteSpace();
+        if(!checkGameObject(nextNode)) return null;
+        
+        return nextNode;
+    }
     
     private boolean checkString(ParseNodeNonBinary parent){
         ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<string>");

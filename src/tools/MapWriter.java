@@ -17,18 +17,12 @@ public class MapWriter {
     public static void main(String[] args){
     
         
-        /*
-        File mapFolder = new File("maps");
-        if(!mapFolder.exists()) mapFolder.mkdir();
-        File mapFiles[] = mapFolder.listFiles();
-        if(mapFiles == null) return;
-        for(File n : mapFiles){
-            Map m = MapLoader.loadMapFromFile(n);
-        }
-        */
-        
+       
         Map m = MapWriter.createNewMapFile("test");
-        Asset a1 = new Asset("test object");
+        ScenePlane base = new ScenePlane();
+        base.plane = new Plane(new Line(new Vector2(0,1), new Vector2(1,0)),new Vector2(0,0));
+        base.setName("test_object");
+        Asset a1 = new Asset(base);
         
         Transform t1 = a1.getComponent(Transform.class);
         t1.position = new Vector3(3,4,5);
@@ -36,7 +30,7 @@ public class MapWriter {
         s1.getComponent(Transform.class).position = new Vector3(3,2,2);
         s1.setName("MEGASPHERE");
         s1.postition2 = new Vector3(3,2,2);
-        Sphere s2 = a1.addChild(Sphere.class);
+        Sphere s2 = s1.addChild(Sphere.class);
         s2.radius = 10;
         s2.setName("smallsphere");
         s1.radius = 15;
@@ -55,6 +49,7 @@ public class MapWriter {
         AssetTreeConverter assetTreeConverter = new AssetTreeConverter();
         GameObject testObject = assetTreeConverter.createGameObjectFromAssetTree(a2);
         System.out.println(testObject.getName());
+        System.out.println(String.format("Nodes: %d Height: %d", a2.numberOfNodes(), a2.height()));
         
         
         //assetTreeConverter.testAssetTreeConverter();

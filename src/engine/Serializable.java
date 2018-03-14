@@ -3,9 +3,12 @@ package engine;
 import engine.special_objects.GameObject;
 import tools.AssetTreeConverter;
 
+import javax.jws.Oneway;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 public abstract class Serializable {
     
@@ -76,15 +79,32 @@ public abstract class Serializable {
         return initial + modifiedType;
     }
     
-    public String stringOfFields(int indent) throws IllegalAccessException{
+    public <T> String stringOfFields(int indent) throws IllegalAccessException{
         StringBuilder output = new StringBuilder();
         for(Field f : getParams()) {
             for (int i = 0; i < indent; i++) output.append("\t");
     
             Class varClass = f.getType();
             String type;
+            
+            
             if(varClass.isPrimitive()){
                 type = convertPrimitiveToClass(varClass);
+            }else if(varClass.isArray()){
+                
+                Class temp = f.getType();
+                StringBuilder boxes = new StringBuilder();
+                while(temp.isArray()){
+                    boxes.append("[]");
+                    temp = temp.getComponentType();
+                }
+                if(temp.isPrimitive()){
+                    type = convertPrimitiveToClass(temp);
+                }else{
+                    type = temp.getName();
+                }
+                
+                type += boxes.toString();
             }else{
                 type = varClass.getName();
             }
@@ -115,6 +135,11 @@ public abstract class Serializable {
                 output.append('"');
                 output.append(f.get(this));
                 output.append('"');
+            }else if(varClass.isArray()) {
+                output.append("[\n");
+                output.append(convertArrayToString(varClass.getComponentType(), (T[]) f.get(this),indent+1));
+                for (int i = 0; i < indent; i++) output.append("\t");
+                output.append("]");
             }else{
                 output.append("???");
             }
@@ -131,6 +156,61 @@ public abstract class Serializable {
     
     public boolean initialzed(){
         return initialized;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private <T,K> String convertArrayToString(Class<?> componentType, T[] array, int indent){
+        if(array == null) return "";
+        StringBuilder output = new StringBuilder();
+        int count = 0;
+        
+        if(componentType.isArray()){
+            
+            for(int i = 0; i < array.length; i++){
+                
+                componentType.cast(array[i]);
+            
+                
+            }
+            
+            
+            
+            
+            for(T part : array){
+                for (int i = 0; i < indent; i++) output.append("\t");
+                String type;
+                Class temp = componentType;
+                StringBuilder boxes = new StringBuilder();
+                while(temp.isArray()){
+                    boxes.append("[]");
+                    temp = temp.getComponentType();
+                }
+                if(temp.isPrimitive()){
+                    type = convertPrimitiveToClass(temp);
+                }else{
+                    type = temp.getName();
+                }
+    
+                type += boxes.toString();
+    
+                String init = "[" + type + "]" + count + "=";
+                output.append(init);
+                output.append(convertArrayToString(componentType.getComponentType(), (K[]) part, indent+1));
+            }
+        }else{
+            
+            //Object[] objectAsArray = ((Object[]) array).length;
+            List<Object> list = Arrays.asList((T[]) array);
+            System.out.println(Array.getLength(list));
+            for(Object part : list){
+                System.out.println(part.getClass().getName());
+            }
+            
+            
+        }
+    
+    
+        return output.toString();
     }
     
     

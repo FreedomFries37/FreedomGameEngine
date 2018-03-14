@@ -13,9 +13,24 @@ public class Asset extends GameObject{
         inheritFromAssetFile(file);
     }
     
+    public Asset(GameObject g){
+        this(g.getName());
+        gameObject = g;
+    }
+    
     
     public AssetFile getAssetFile(){
         return assetFile;
+    }
+    
+    @Override
+    public String toStringExtended(){
+        String output = gameObject.getClass().getName() + "\n";
+        try {
+            return output + toStringExtended(0);
+        }catch(IllegalAccessException e){
+            return "";
+        }
     }
     
     @Override
