@@ -4,6 +4,7 @@ import engine.special_objects.GameObject;
 import tools.AssetTreeConverter;
 
 import javax.jws.Oneway;
+import javax.lang.model.type.ArrayType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -94,9 +95,19 @@ public abstract class Serializable {
                 
                 Class temp = f.getType();
                 StringBuilder boxes = new StringBuilder();
+                boolean firstRun = true;
                 while(temp.isArray()){
-                    boxes.append("[]");
-                    temp = temp.getComponentType();
+                    if(firstRun) {
+                        firstRun = false;
+                        int size;
+                        size = getSizeOfArrayObject(f.get(this));
+                        String box = "[" + size + "]";
+                        boxes.append(box);
+                        temp = temp.getComponentType();
+                    }else{
+                        boxes.append("[]");
+                        temp = temp.getComponentType();
+                    }
                 }
                 if(temp.isPrimitive()){
                     type = convertPrimitiveToClass(temp);
@@ -137,7 +148,8 @@ public abstract class Serializable {
                 output.append('"');
             }else if(varClass.isArray()) {
                 output.append("[\n");
-                output.append(convertArrayToString(varClass.getComponentType(), (T[]) f.get(this),indent+1));
+               
+                output.append(convertArrayToString(varClass.getComponentType(), f.get(this),indent+1));
                 for (int i = 0; i < indent; i++) output.append("\t");
                 output.append("]");
             }else{
@@ -159,31 +171,36 @@ public abstract class Serializable {
     }
     
     @SuppressWarnings("unchecked")
-    private <T,K> String convertArrayToString(Class<?> componentType, T[] array, int indent){
+    private <K> String convertArrayToString(Class<?> componentType, Object array, int indent){
         if(array == null) return "";
         StringBuilder output = new StringBuilder();
         int count = 0;
         
         if(componentType.isArray()){
             
-            for(int i = 0; i < array.length; i++){
-                
-                componentType.cast(array[i]);
-            
-                
-            }
+            K[] newArray = convertArrayObjectToArray(array);
+            System.out.println(Arrays.toString(newArray));
             
             
             
-            
-            for(T part : array){
+            for(K part : newArray){
                 for (int i = 0; i < indent; i++) output.append("\t");
                 String type;
                 Class temp = componentType;
                 StringBuilder boxes = new StringBuilder();
+                boolean firstRun = true;
                 while(temp.isArray()){
-                    boxes.append("[]");
-                    temp = temp.getComponentType();
+                    if(firstRun) {
+                        firstRun = false;
+                        int size;
+                        size = getSizeOfArrayObject(part);
+                        String box = "[" + size + "]";
+                        boxes.append(box);
+                        temp = temp.getComponentType();
+                    }else{
+                        boxes.append("[]");
+                        temp = temp.getComponentType();
+                    }
                 }
                 if(temp.isPrimitive()){
                     type = convertPrimitiveToClass(temp);
@@ -193,17 +210,45 @@ public abstract class Serializable {
     
                 type += boxes.toString();
     
-                String init = "[" + type + "]" + count + "=";
+                String init = "[" + type + "]" + count + "=[\n";
                 output.append(init);
-                output.append(convertArrayToString(componentType.getComponentType(), (K[]) part, indent+1));
+                output.append(convertArrayToString(componentType.getComponentType(), part, indent+1));
+                for (int i = 0; i < indent; i++) output.append("\t");
+                output.append("]\n");
+                count++;
             }
         }else{
             
             //Object[] objectAsArray = ((Object[]) array).length;
-            List<Object> list = Arrays.asList((T[]) array);
-            System.out.println(Array.getLength(list));
-            for(Object part : list){
-                System.out.println(part.getClass().getName());
+            K[] newArray = convertArrayObjectToArray(array);
+            for(K part : newArray){
+                for (int i = 0; i < indent; i++) output.append("\t");
+                String type;
+                if(componentType.isPrimitive()){
+                    type = convertPrimitiveToClass(componentType);
+                }else{
+                    type = componentType.getName();
+                }
+                String init = "[" + type + "]" + count + "=";
+                String data;
+                try {
+                   
+                    if (Serializable.class.isAssignableFrom(part.getClass())) {
+                        data = "{\n";
+                        data += ((Serializable) part).stringOfFields(indent + 1);
+                        for (int i = 0; i < indent; i++) data += '\t';
+                        data += "}\n";
+                    }else{
+                        data = "(" + part.toString() + ")";
+                    }
+                   
+                }catch (IllegalAccessException e){
+                    data = "???";
+                }
+                
+                String outcome = init + data + '\n';
+                output.append(outcome);
+                count++;
             }
             
             
@@ -213,5 +258,45 @@ public abstract class Serializable {
         return output.toString();
     }
     
+    @SuppressWarnings("unchecked")
+    public <T> T[] convertArrayObjectToArray(Object array){
+        LinkedList<T> list = new LinkedList<>();
+        Class componentType = array.getClass().getComponentType();
+        try {
+            if (componentType.isPrimitive()) {
+                componentType = Class.forName(convertPrimitiveToClass(componentType));
+            }
+        }catch(ClassNotFoundException e){
+            return null;
+        }
+        int index = 0;
+        while(true){
+            try{
+                list.add((T) componentType.cast(Array.get(array, index)));
+            }catch (ArrayIndexOutOfBoundsException e){
+                break;
+            }
+            index++;
+        }
     
+        return (T[]) list.toArray();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public int getSizeOfArrayObject(Object array){
+        LinkedList<Object> list = new LinkedList<>();
+       
+    
+        int index = 0;
+        while(true){
+            try{
+                list.add(Array.get(array, index));
+            }catch (ArrayIndexOutOfBoundsException | NullPointerException e){
+                break;
+            }
+            index++;
+        }
+        
+        return list.size();
+    }
 }

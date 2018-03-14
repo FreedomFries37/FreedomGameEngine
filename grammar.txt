@@ -64,7 +64,13 @@ rule <arraytail>:
 	"<stringEx>"<whitespace><fieldlist>
 	
 optional rule <dimensions>:
-	[]<dimensions>
+	[<arraysize>]<dimensionstail>
+	
+optional rule <dimensionstail>:
+	[]<dimensionstail>
+	
+optional rule <arraysize>:
+	integer
 		
 #Children
 optional rule <childrenlist>:

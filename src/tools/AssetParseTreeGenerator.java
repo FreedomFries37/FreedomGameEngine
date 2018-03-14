@@ -4,7 +4,6 @@ import engine.AssetFile;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedList;
 
 public class AssetParseTreeGenerator {
     
@@ -43,7 +42,7 @@ public class AssetParseTreeGenerator {
         return new ParseTree(nonBinaryTree);
     }
     
-    private void continuePointer(){
+    private void advancePointer(){
         index++;
         if(index < fileAsString.length()) currentPointer = fileAsString.toCharArray()[index];
     }
@@ -64,7 +63,7 @@ public class AssetParseTreeGenerator {
      */
     private boolean consumeChar(char c){
         if(matchChar(c)){
-            continuePointer();
+            advancePointer();
             return true;
         }
         return false;
@@ -83,7 +82,7 @@ public class AssetParseTreeGenerator {
     private boolean consumeString(String s){
         if(matchString(s)){
             for (int i = 0; i < s.length(); i++) {
-                continuePointer();
+                advancePointer();
             }
             return true;
         }
@@ -109,7 +108,7 @@ public class AssetParseTreeGenerator {
         
         while(charValue == 95 || (firstChecked && charValue >= 48 && charValue <= 57) || (charValue>=65 && charValue <= 90) || (charValue>=97 && charValue <= 122)){
             builder.append(currentPointer);
-            continuePointer();
+            advancePointer();
             charValue = (int) currentPointer;
             if(!firstChecked) firstChecked = true;
         }
@@ -129,7 +128,7 @@ public class AssetParseTreeGenerator {
     
         while(charValue != '"'){
             builder.append(currentPointer);
-            continuePointer();
+            advancePointer();
             charValue = (int) currentPointer;
             if(!firstChecked) firstChecked = true;
         }
@@ -206,6 +205,7 @@ public class AssetParseTreeGenerator {
         if(matchChar('[')){
             consumeChar('[');
             if(!checkType(nextNode)) return false;
+            checkDimensions(nextNode);
             consumeChar(']');
             if(!checkString(nextNode)) return false;
             consumeChar('=');
@@ -229,6 +229,8 @@ public class AssetParseTreeGenerator {
         }else if(consumeChar('"')){
             if(!checkStringFull(nextNode)) return false;
             if(!consumeChar('"')) return false;
+        }else if(consumeChar('[')){
+            consumeWhiteSpace();
         }
         consumeWhiteSpace();
         if(matchChar('[')) {
@@ -265,7 +267,7 @@ public class AssetParseTreeGenerator {
         StringBuilder builder = new StringBuilder();
         while(!matchChar(')')){
             builder.append(currentPointer);
-            continuePointer();
+            advancePointer();
         }
         nextNode.children.add(new ParseNodeNonBinary(builder.toString()));
         
@@ -330,8 +332,61 @@ public class AssetParseTreeGenerator {
         return true;
     }
     
+    private boolean checkDimensions(ParseNodeNonBinary parent){
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<dimensions>");
+        
+        if(consumeChar('[')){
+            if(!checkArraySize(nextNode)) return false;
+            checkDimensionTail(nextNode);
+        }else{
+            ParseNodeNonBinary value, actualValue;
+            value = new ParseNodeNonBinary("<arraysize>");
+            actualValue = new ParseNodeNonBinary("0");
+            value.children.add(actualValue);
+            nextNode.children.add(value);
+        }
     
+        parent.children.add(nextNode);
+        return true;
+    }
     
+    private boolean checkArraySize(ParseNodeNonBinary parent){
+        ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<arraysize>");
+        
+        StringBuilder size = new StringBuilder();
+        boolean addedToSize = false;
+        
+        while(currentPointer != ']'){
+            if (!addedToSize) {
+                addedToSize = true;
+            }
+            size.append(currentPointer);
+            advancePointer();
+        }
+        
+        if(addedToSize) nextNode.children.add(new ParseNodeNonBinary(size.toString()));
+        else nextNode.children.add(new ParseNodeNonBinary("0"));
+        
+        parent.children.add(nextNode);
+        return true;
+    }
+    
+    private boolean checkDimensionTail(ParseNodeNonBinary parent){
+        if(consumeString("[]")){
+            ParseNodeNonBinary nextNode = new ParseNodeNonBinary("<dimensiontail>");
+            checkDimensionTail(nextNode);
+    
+            parent.children.add(nextNode);
+        }
+    
+        return true;
+    }
+    
+    private boolean checkArray(ParseNodeNonBinary parent){
+        
+        
+        return true;
+    }
     
     
 }
