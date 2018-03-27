@@ -1,8 +1,9 @@
 package engine.special_objects;
 
 
+import engine.Serializable;
+
 import java.io.File;
-import java.io.IOException;
 
 public class Map extends GameObject {
     

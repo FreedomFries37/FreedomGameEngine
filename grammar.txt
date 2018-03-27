@@ -34,7 +34,7 @@ optional rule <typetail>:
 //For Game Objects
 
 rule <asset>:
-	[ASSET]$PATH
+	<type><whitespace><gameobject>
 
 rule <gameobject>:
 	<objectname><whitespace><fieldlist><whitespace>children={<whitespace><childrenlist><whitespace>}<whitespace>components={<whitespace><componentlist><whitespace>}
@@ -45,22 +45,44 @@ rule <objectname>:
 	
 #Fields
 optional rule <fieldlist>:
-	[<type>]<string>=<fieldlisttail>
+	[<type><dimensions>]<string>=<fieldlisttail>
 	
 rule <fieldlisttail>:
-	<value><whitespace><fieldlist>
-	{<fieldlist>}<whitespace><fieldlist>
+	(<value>)<whitespace><fieldlist>
+	{<whitespace><fieldlist>}<whitespace><fieldlist>
+	[<whitespace><array>]<whitespace><fieldlist>
+	"<stringEx>"<whitespace><fieldlist>
 	
+#Arrays
+optional rule <array>:
+	[<type><dimensions>]<value>=<arraytail>
+
+rule <arraytail>:
+	(<value>)<whitespace><fieldlist>
+	{<whitespace><fieldlist>}<whitespace><fieldlist>
+	[<whitespace><array>]<whitespace><fieldlist>
+	"<stringEx>"<whitespace><fieldlist>
+	
+optional rule <dimensions>:
+	[<arraysize>]<dimensionstail>
+	
+optional rule <dimensionstail>:
+	[]<dimensionstail>
+	
+optional rule <arraysize>:
+	integer
+		
 #Children
 optional rule <childrenlist>:
 	<type>{<whitespace><gameobject><whitespace>}<whitespace><childrenlist>
+	[A]"<stringEx>"<whitespace><childrenlist>
 	
 #Components
 optional rule <componentlist>:
-	<component>{<whitespace><fieldlist><whitespace>}
+	<component><whitespace><childrenlist>
 	
 rule <component>:
-	<string>
+	<type>{<whitespace><fieldlist><whitespace>}
 
 	
 	

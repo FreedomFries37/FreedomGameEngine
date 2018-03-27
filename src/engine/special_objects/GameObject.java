@@ -3,32 +3,42 @@ package engine.special_objects;
 import engine.AssetFile;
 import engine.Component;
 import engine.Serializable;
+import engine.StandardBehavior;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class GameObject extends Serializable{
+public class GameObject extends StandardBehavior{
     
     private ArrayList<GameObject> children;
     private ArrayList<Component> components;
     private String name;
     AssetFile assetFile;
     
+    
     //CONSTRUCTOR
     public GameObject(){
+        //super();
         children = new ArrayList<>();
         components = new ArrayList<>();
         name = "";
         assetFile = null;
+        setGameObject();
     }
     
     
     
     //MUTATOR METHODS
+    @SuppressWarnings("unchecked")
     public <T extends Component> T addComponent(Class<T> type){
+        for(Component c : components){
+            if(c.getClass().getDeclaringClass().equals(type.getClass())) return (T) c;
+        }
         try{
             T c = type.newInstance();
             components.add(c);
+            c.setParent(this);
+            c.setGameObject();
             c.initialize();
             return c;
         }catch(InstantiationException | IllegalAccessException e){
@@ -36,6 +46,16 @@ public class GameObject extends Serializable{
         }
         
         return null;
+    }
+    
+    public boolean addComponent(Component o){
+        for(Component c : components){
+            if(c.getClass() == o.getClass()) return false;
+        }
+        components.add(o);
+        o.setParent(this);
+        o.gameObject = this;
+        return true;
     }
     
     public boolean removeComponent(Component o){
@@ -67,8 +87,8 @@ public class GameObject extends Serializable{
     public <T extends GameObject> T addChild(Class<T> type){
         try{
             T g = type.newInstance();
-            g.initizalize();
-            g.setInitialized();
+            //g.initizalize();
+            //g.setInitialized();
             children.add(g);
             return g;
         }catch(InstantiationException | IllegalAccessException e){
@@ -130,11 +150,7 @@ public class GameObject extends Serializable{
     
     
     //ENGINE METHODS
-    public void update(){}
-    
-    public void start(){}
-    
-    public void initizalize(){}
+  
     
     
     //OTHER METHODS
@@ -159,19 +175,25 @@ public class GameObject extends Serializable{
         output.append(getName());
         output.append("\"\n");
         
-        output.append(stringOfFields(indent));
+        output.append(gameObject.stringOfFields(indent));
         
        
         for (int i = 0; i < indent; i++) output.append("\t");
         output.append("children={\n");
         for (Serializable c: getChildren()) {
-            if(!c.initialzed()) ((GameObject) c).initizalize();
+            //if(!c.initialzed()) ((GameObject) c).initizalize();
             for (int i = 0; i < indent+1; i++) output.append("\t");
             output.append(c.getClass().getName());
-            output.append("{\n");
-            output.append(c.toStringExtended(indent+2));
-            for (int i = 0; i < indent+1; i++) output.append("\t");
-            output.append("}\n");
+            if(((GameObject) c).assetFile != null){
+                output.append("[A]\"");
+                output.append(((Asset) c).assetFile);
+                output.append("\"\n");
+            }else {
+                output.append("{\n");
+                output.append(c.toStringExtended(indent + 2));
+                for (int i = 0; i < indent + 1; i++) output.append("\t");
+                output.append("}\n");
+            }
         }
         for (int i = 0; i < indent; i++) output.append("\t");
         output.append("}\n");
